@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+CONTAINER_USER=${ENV_USER:-almadev}
+CONTAINER_USER_UID=${ENV_USER_UID}
+
+echo "user = ${CONTAINER_USER}, uid = ${CONTAINER_USER_UID}"
+
+useradd -m -s /bin/bash -u ${CONTAINER_USER_UID} ${CONTAINER_USER} > /dev/null 2>&1
+
+cp ~root/.bashrc /home/${CONTAINER_USER}/.bashrc
+chown ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.bashrc
+
+cp ~root/.bashrc /home/${CONTAINER_USER}/.bash_profile
+chown ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.bash_profile
+
+ln -s /home/${CONTAINER_USER}/.bash_profile /home/${CONTAINER_USER}/.profile
+
+touch /home/${CONTAINER_USER}/.alma
+
+mkdir /home/${CONTAINER_USER}/workspace
+chown ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/workspace
+
+chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}
+
+ln -s /alma /home/${CONTAINER_USER}/workspace/alma
+ln -s /code /home/${CONTAINER_USER}/workspace/code
+
+ln -s /opt/dotfiles/vim/.vim /home/${CONTAINER_USER}/
+ln -s /opt/dotfiles/vim/.vimrc /home/${CONTAINER_USER}/
+ln -s /opt/dotfiles/tmux/.tmux.conf /home/${CONTAINER_USER}/
+ln -s /opt/dotfiles/tmux/.sensible.tmux /home/${CONTAINER_USER}/
+ln -s /opt/dotfiles/emacs/.emacs /home/${CONTAINER_USER}/
+
+echo "${CONTAINER_USER}:almadev" | chpasswd
+su - ${CONTAINER_USER}

@@ -1,0 +1,7 @@
+# generated
+.TestList.sed
+.testSession
+1
+sed.scan
+tmp/
+workspace/

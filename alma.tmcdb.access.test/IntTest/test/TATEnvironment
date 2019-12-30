@@ -1,0 +1,42 @@
+global env
+
+# location
+set LOCATION $env(HOSTNAME)
+set env(LOCATION) $LOCATION
+
+# acs tmp
+set ACS_TMP $env(PWD)/tmp
+set env(ACS_TMP) $ACS_TMP 
+
+# acsdata
+set env(ACSDATA) $ACS_TMP/acsdata
+
+# tmcdb
+set env(TMCDB_CONFIGURATION_NAME) "CURRENT.AOS"
+set env(TMCDB_STARTUP_NAME) "STARTUP-ALL"
+
+# configuration (containers, components, etc)
+set ACS_CDB $env(PWD)/config
+set env(ACS_CDB) $ACS_CDB
+
+# idl files to load
+set IDL_CONTROL "TMCDBAccessIF.idl"
+set IDL_LIST "$IDL_CONTROL"
+set env(IDL_LIST) $IDL_LIST
+
+# containers to bring up
+set CONTAINER_LIST "ACC/javaContainer=java"
+set env(CONTAINER_LIST) $CONTAINER_LIST
+
+# acs configuration
+set env(ACS_INSTANCE) 0
+set env(ACS_LOG_STDOUT) 4
+set env(MACI_RECOVERY_FILE_NAME) $ACS_TMP/maciRecovery
+set env(ACS_BACI_RECOVERY_FILE) $ACS_TMP/baciRecovery
+set env(ACS_LOG_FILE) $ACS_TMP/tat.log
+set env(ACS_STARTUP_TIMEOUT_MULTIPLIER) 4
+
+# other configurations
+#set JAVA_OPTIONS "-Xmx20148m $env(JAVA_OPTIONS)"
+#set env(JAVA_OPTIONS) $JAVA_OPTIONS
+unset env(DISPLAY)

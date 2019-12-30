@@ -1,0 +1,10 @@
+*.class
+*.jar
+*.log
+bin
+config
+doc
+idl
+include
+lib
+object

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+# prologue setup
+ulimit -u 4096
+
+function log {
+    local logfile=$ACS_TMP/`basename $0`.log
+    local timestamp=`date +%Y-%m-%dT%T.%3N`
+    local message="$timestamp - $*"
+    #echo $message >> $logfile || true
+    echo $message
+}
+
+# setup temporal directory
+log "ACS_TMP = $ACS_TMP"
+rm -rf $ACS_TMP && mkdir -p $ACS_TMP
+
+# acsdata
+rm -rf $ACSDATA && mkdir -p $ACSDATA
+rsync -av\
+ --exclude 'tomcat5*'\
+ --exclude 'tmp/*'\
+ --exclude '*CDB/*'\
+ --exclude 'dumps/*'\
+  /alma/ACS-current/acsdata/ $ACSDATA/ 
+
+# database configuration files
+
+# archive
+ln -s $ACSDATA/config/archiveConfig.properties $ACSDATA/config/archiveConfig.properties.$LOCATION
+
+# setup cdb (configured in TATEnvironment)
+log "ACS_CDB = $ACS_CDB"
+
+# start orb services and manager
+log "Starting ACS, ORB services and manager"
+[[ $IDL_LIST ]] && acsutilTATPrologue -l --noloadifr || acsutilTATPrologue -l
+
+# interface repository
+[[ $IDL_LIST ]] && log "Loading IDL files, $IDL_LIST"
+[[ $IDL_LIST ]] && acsstartupLoadIFR $IDL_LIST > $ACS_TMP/acsstartupLoadIFR.log 2>&1 &
+
+# backup the environment
+environment_file=$ACS_TMP/environment
+rm -rf $environment_file && touch $environment_file
+echo "IDL_LIST=\"$IDL_LIST\"" >> $environment_file
+echo "CONTAINER_LIST=\"$CONTAINER_LIST\"" >> $environment_file
+echo "ACS_TMP=$ACS_TMP" >> $environment_file
+echo "ACS_CDB=$ACS_CDB" >> $environment_file
+echo "ACS_INSTANCE=$ACS_INSTANCE" >> $environment_file
+echo "ACS_LOG_STDOUT=$ACS_LOG_STDOUT" >> $environment_file
+echo "MACI_RECOVERY_FILE_NAME=$MACI_RECOVERY_FILE_NAME" >> $environment_file
+echo "ACS_BACI_RECOVERY_FILE=$ACS_BACI_RECOVERY_FILE" >> $environment_file
+echo "ACS_LOG_FILE=$ACS_LOG_FILE" >> $environment_file
+
+# containers
+[[ $CONTAINER_LIST ]] && for container in $CONTAINER_LIST; do
+    container_name=${container%%=*}
+    container_type=${container##*=}
+    container_file=${container_name//\//_}
+    container_file=${container_file,,}
+    container_log=${container_file}.log
+    
+    container_cmd_start="acsutilBlock -t 60 -f $ACS_TMP/$container_log -b \"container started\" \
+        -x acsStartContainerWithFortran -$container_type $container_name > $ACS_TMP/acsutilBlock.log 2&>1";
+    
+    container_cmd_stop="acsutilBlock -t 60 -f $ACS_TMP/$container_log -b \"container stopped\" \
+        -x acsStopContainer $container_name > 2&>1";
+
+    # helpers written in $ACS_TMP
+    #echo "source $environment_file && $container_cmd_start" > $ACS_TMP/$container_file.start.sh
+    #echo "source $environment_file && $container_cmd_stop" > $ACS_TMP/$container_file.stop.sh
+
+    log "Starting container $container_name"
+    eval $container_cmd_start &
+
+done;
+
+log "all set, enjoy"
+

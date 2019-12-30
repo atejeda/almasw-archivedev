@@ -1,0 +1,9 @@
+* Notes
+
+** Filebeat
+
+*** Multiline regex
+
+- https://www.elastic.co/guide/en/beats/filebeat/current/multiline-examples.html
+- https://www.elastic.co/guide/en/beats/filebeat/current/regexp-support.html
+- https://regex101.com/

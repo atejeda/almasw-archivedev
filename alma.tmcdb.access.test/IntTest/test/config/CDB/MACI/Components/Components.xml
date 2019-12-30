@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Components xmlns="urn:schemas-cosylab-com:Components:1.0">
+
+  <!-- Access component -->
+  
+  <_ Name="*"
+    Code="alma.tmcdb.access.compimpl.TmcdbComponentImplHelper"
+    Type="IDL:alma/TMCDB/Access:1.0"
+    Container="ACC/javaContainer"
+    ImplLang="java"
+    Default="true"/>
+    
+</Components>

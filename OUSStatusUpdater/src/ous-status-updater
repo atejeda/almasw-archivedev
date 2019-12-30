@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+_logfile=./`basename $0`-`date +'%Y%M%d%H%M%S'`.log
+
+echo "Log file written to ${_logfile}"
+acsStartJava -DACS.data=$ACSDATA -noDirectory -endorsed alma.scheduling.ous.OUSStatusUpdater $* 2>&1 | tee ${_logfile}

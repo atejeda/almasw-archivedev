@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+[[ $1 == "start" ]] && tat makeEnv && exit 0;
+[[ $1 == "stop" ]] && tat cleanEnv && exit 0;
+[[ $1 == "clean" ]] && rm -rf 1 2 lib ref sed.scan tatlogs tmp nohup.out && exit 0;
+[[ $1 == "restart" ]] && $0 stop && $0 clean && $0 start && exit 0;
+
+echo "Usage: `basename $0` {start|stop|clean|restart}"
